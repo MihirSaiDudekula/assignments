@@ -4,7 +4,27 @@
  * the function should return a promise just like before
  */
 
-function sleep(milliseconds) {
+function expensiveOperation(duration) {
+    const start = Date.now();
+    while (Date.now() - start < duration) {
+        // Busy wait for the specified duration (e.g., 3000ms)
+    }
 }
+
+function sleep(milliseconds) {
+	const mp = new Promise((resolve,reject)=>{
+		expensiveOperation(milliseconds)
+		resolve()
+	},n)
+	return mp
+
+}
+
+let n = 500
+sleep(n)
+  .then(() => {
+    // Log a message when the promise is resolved
+    console.log(`Promise resolved after ${n} milliseconds`);
+  })
 
 module.exports = sleep;
