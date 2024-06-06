@@ -47,10 +47,3 @@ app.all('*', (req, res) => {
 
 module.exports = app;
 
-npm run test-fileServer
-
- 02-nodejs@1.0.0 test-fileServer                                                             
-> ./node_modules/jest/bin/jest.js ./tests/fileServer.test.js                                  
-                                                                                              
-'.' is not recognized as an internal or external command,                                     
-operable program or batch file. 

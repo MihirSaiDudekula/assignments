@@ -39,11 +39,95 @@
 
   Testing the server - run `npm run test-todoServer` command in terminal
  */
-  const express = require('express');
-  const bodyParser = require('body-parser');
+const express = require('express');
+const bodyParser = require('body-parser');
+
+const app = express();
+
+app.use(bodyParser.json());
+
+let todos = []
+
+function findId(arr, id) {
+  // for (let i = 0; i < arr.length; i++) {
+  //   if (arr[i].id === id) return i;
+  // }
+  let s = 0
+  let e = arr.length-1
+  while(s<=e)
+  {
+    let mid = Math.floor(s + ((e-s)/2))
+    if(arr[mid].id==id)
+    {
+      return mid
+    }
+    else if(arr[mid].id<id)
+    {
+      s=mid+1
+    }
+    else
+    {
+      e=mid-1
+    }
+  }
+  return -1;
+}
+
+function genId(arr)
+{
+  let len = arr.length-1
+  let nid = -1
+  if(len===0)
+  {
+    nid=1
+  }
+  let lastId = arr[arr.length-1].id
+  nid = lastId+1
+  return nid
+}
+
+app.get('/todos',(req,res)=>{
+  fs.readFile("todos.json", "utf8", function(err, data) {
+    if (err) throw err;
+    res.status(200).json(JSON.parse(data));
+  });
+
+
+app.get('/todos/:id',(req,res)=>{
+  let _id = parseInt(req.params.id)
+  fs.readFile("todos.json", "utf8", function(err, data) {
+    if (err) throw err;
+    let todos = JSON.parse(data)
+    let loc = findId(todos,_id)
+    if(loc===-1)
+    {
+      res.status(404).send();
+    }
+    res.status(200).json(todos[loc])
+  });
+});
+
+    // Request Body: { "title": "Buy groceries", "completed": false, description: "I should buy groceries" }
+
+app.get('/todos',(req,res)=>{
+  fs.readFile("todos.json","utf8",(err,data)=>{
+    if (err) throw err;
+    let todos = JSON.parse(data)
+    let _id = genId(todos)
+    let newTodo = {
+      id:_id,
+      title:req.body.title,
+      completed:req.body.completed,
+      description:req.body.description,
+    }
+    todos.push(newTodo)
+    fs.writeFile("todos.json",newTodo,(err)=>{
+      if (err) throw err;
+
+    });
+  });
+
   
-  const app = express();
-  
-  app.use(bodyParser.json());
-  
-  module.exports = app;
+});
+    
+module.exports = app;

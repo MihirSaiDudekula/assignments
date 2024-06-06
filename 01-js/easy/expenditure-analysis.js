@@ -21,7 +21,7 @@ function calculateTotalSpentByCategory(transactions) {
     return [];
   }
 
-  /* ---- Way-1 Using Ojbect & Destructuring ---- */
+  /* ---- Way-1 Using Object & Destructuring ---- */
   // Initialize an object to store category and total spent
   const categoryTotal = {};
 
