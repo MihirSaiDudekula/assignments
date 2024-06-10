@@ -73,17 +73,21 @@ function findId(arr, id) {
   return -1;
 }
 
-function genId(arr)
-{
-  let len = arr.length-1
-  let nid = -1
-  if(len===0)
-  {
-    nid=1
+function genId(arr) {
+    if (arr.length === 0) {
+        return 1;
+    }
+    let lastId = arr[arr.length - 1].id;
+    return lastId + 1;
+}
+
+
+function removeAtIndex(arr, index) {
+  let newArray = [];
+  for (let i = 0; i < arr.length; i++) {
+    if (i !== index) newArray.push(arr[i]);
   }
-  let lastId = arr[arr.length-1].id
-  nid = lastId+1
-  return nid
+  return newArray;
 }
 
 app.get('/todos',(req,res)=>{
@@ -91,7 +95,7 @@ app.get('/todos',(req,res)=>{
     if (err) throw err;
     res.status(200).json(JSON.parse(data));
   });
-
+});
 
 app.get('/todos/:id',(req,res)=>{
   let _id = parseInt(req.params.id)
@@ -109,7 +113,7 @@ app.get('/todos/:id',(req,res)=>{
 
     // Request Body: { "title": "Buy groceries", "completed": false, description: "I should buy groceries" }
 
-app.get('/todos',(req,res)=>{
+app.post('/todos',(req,res)=>{
   fs.readFile("todos.json","utf8",(err,data)=>{
     if (err) throw err;
     let todos = JSON.parse(data)
@@ -121,13 +125,55 @@ app.get('/todos',(req,res)=>{
       description:req.body.description,
     }
     todos.push(newTodo)
-    fs.writeFile("todos.json",newTodo,(err)=>{
+    fs.writeFile("todos.json", JSON.stringify(todos), (err) => {
       if (err) throw err;
+      res.status(201).json(newTodo);
+    });
+  });  
+});
 
+app.put('/todos/:id',(req, res)=>{
+  fs.readFile("todos.json","utf8",(err,data)=>{
+    if (err) throw err;
+    let todos = JSON.parse(data)
+    let givenId = parseInt(req.params.id)
+    let existingId = findId(todos,givenId)
+    if(existingId===-1)
+    {
+      res.status(404).send();
+    }
+    let reqTodo = todos[existingId]
+    reqTodo.title=req.body.title
+    reqTodo.completed=req.body.completed
+    reqTodo.description=req.body.description
+    fs.writeFile("todos.json", JSON.stringify(todos), (err) => {
+      if (err) throw err;
+      res.status(200).json(reqTodo);
     });
   });
 
-  
+}); 
+
+app.delete('/todos/:id',(req, res)=>{
+  fs.readFile("todos.json","utf8",(err,data)=>{
+    if (err) throw err;
+    let todos = JSON.parse(data)
+    let givenId = parseInt(req.params.id)
+    let existingId = findId(todos,givenId)
+    if(existingId===-1)
+    {
+      res.status(404).send();
+    }
+    todos = removeAtIndex(todos,existingId)
+    fs.writeFile("todos.json", JSON.stringify(todos), (err) => {
+      if (err) throw err;
+      res.status(200).send();
+    });
+  });
+})
+
+// for all other routes, return 404
+app.use((req, res, next) => {
+  res.status(404).send();
 });
-    
 module.exports = app;
