@@ -1,18 +1,38 @@
-const { Router } = require("express");
+const express = require("express");
 const adminMiddleware = require("../middleware/admin");
-const router = Router();
+const { Admin, Item } = require("../db");
+const router = express.Router();
 
 // Admin Routes
-router.post('/signup', (req, res) => {
-    // Implement admin signup logic
+router.post('/signup', async (req, res) => {
+    const { username, password } = req.body;
+
+    try {
+        await Admin.create({ username, password });
+        res.json({ message: 'Admin created successfully' });
+    } catch (error) {
+        res.status(500).json({ msg: "Error creating admin", error });
+    }
 });
 
-router.post('/courses', adminMiddleware, (req, res) => {
-    // Implement course creation logic
+router.post('/items', adminMiddleware, async (req, res) => {
+    const { name, price, description } = req.body;
+
+    try {
+        const newItem = await Item.create({ name, price, description });
+        res.json({ message: 'Item created successfully', name: newItem.name });
+    } catch (error) {
+        res.status(500).json({ msg: "Error creating item", error });
+    }
 });
 
-router.get('/courses', adminMiddleware, (req, res) => {
-    // Implement fetching all courses logic
+router.get('/items', adminMiddleware, async (req, res) => {
+    try {
+        const items = await Item.find({});
+        res.json({ items });
+    } catch (error) {
+        res.status(500).json({ msg: "Error fetching items", error });
+    }
 });
 
 module.exports = router;
