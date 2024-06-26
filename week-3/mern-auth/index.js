@@ -1,34 +1,30 @@
+const express = require('express');
 const mongoose = require('mongoose');
+const app = express();
 
-// Connect to MongoDB
+// Middleware
+app.use(express.json());
 
-const mongoURL = 'mongodb+srv://mihirsaidudekula:aez0yHhfIIAvGOIZ@cluster0.xfmyzjg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
+// MongoDB connection
+const mongoURL = 'mongodb+srv://mihirsaidudekula:aez0yHhfIIAvGOIZ@cluster0.xfmyzjg.mongodb.net/?retryWrites=true&majority&appName=Cluster0';
 
-mongoose.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => {
+        console.log('Connected to MongoDB');
+    })
+    .catch((err) => {
+        console.error('Error connecting to MongoDB:', err.message);
+    });
 
-// Define schemas
-const AdminSchema = new mongoose.Schema({
-    username: { type: String, required: true, unique: true },
-    password: { type: String, required: true }
+// Routers
+const userRouter = require('./routes/user');
+const itemRouter = require('./routes/items');
+
+app.use('/users', userRouter);
+app.use('/items', itemRouter);
+
+// Start the server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
-
-const UserSchema = new mongoose.Schema({
-    username: { type: String, required: true, unique: true },
-    password: { type: String, required: true }
-});
-
-const CourseSchema = new mongoose.Schema({
-    title: { type: String, required: true },
-    description: { type: String, required: true },
-    price: { type: Number, required: true }
-});
-
-const Admin = mongoose.model('Admin', AdminSchema);
-const User = mongoose.model('User', UserSchema);
-const Course = mongoose.model('Course', CourseSchema);
-
-module.exports = {
-    Admin,
-    User,
-    Course
-}
