@@ -64,7 +64,7 @@ app.get("/profile", (req, res) => {
   if (!authHeader) {
     return res.status(401).json({ msg: "Authorization header is required" });
   }
-
+  
   const token = authHeader.split(' ')[1];
   if (!token) {
     return res.status(401).json({ msg: "Token is required" });
