@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script>
+    let globalId = 1;
+    let todoState = [
+        {
+            title: "Go to gym",
+            description: "Go to gym from 7-8PM",
+            id: 1
+        },
+        {
+            title: "Buy groceries",
+            description: "Purchase fruits, vegetables, and milk.",
+            id: 2
+        },
+        {
+            title: "Finish work report",
+            description: "Complete and submit the quarterly work report by 5PM.",
+            id: 3
+        },
+        {
+            title: "Call Mom",
+            description: "Catch up with Mom and check in on how she's doing.",
+            id: 4
+        },
+        {
+            title: "Book dentist appointment",
+            description: "Schedule a dental check-up for next month.",
+            id: 5
+        },
+        {
+            title: "Read a book",
+            description: "Read at least 30 pages of 'The Great Gatsby'.",
+            id: 6
+        },
+        {
+            title: "Clean the house",
+            description: "Tidy up the living room, kitchen, and bathroom.",
+            id: 7
+        },
+        // {
+        //     title: "Complete coding exercise",
+        //     description: "Finish the coding challenge for the job interview.",
+        //     id: 8
+        // },
+        // {
+        //     title: "Grocery shopping",
+        //     description: "Buy groceries including bread, eggs, and coffee.",
+        //     id: 9
+        // },
+        // {
+        //     title: "Water the plants",
+        //     description: "Water all indoor and outdoor plants.",
+        //     id: 10
+        // }
+        ]
+    let oldTodoState = [];
+
+    function addTodoToDom() 
+    {
+      
+    }
+
+    function removeTodoFromDom(todo) {
+      
+    }
+
+    function updateTodoInDom(oldTodo, newTodo) {
+        
+    }
+
+    function updateState(newTodos) {
+      // Initialize arrays to track the differences
+      const added = [];   // Todos that are in newTodos but not in oldTodoState
+      const deleted = []; // Todos that are in oldTodoState but not in newTodos
+      const updated = []; // Todos that are present in both arrays but have different details
+
+      // Convert newTodos array into an array of IDs
+      // `obj => obj.id` extracts the `id` from each object in newTodos
+      const newTodoIds = newTodos.map(obj => obj.id);
+
+      // Convert oldTodoState array into an array of IDs
+      const oldTodoIds = oldTodoState.map(obj => obj.id);
+
+      // Find todos that are in oldTodoState but not in newTodos
+      // These todos have been deleted
+      deleted = oldTodoState.filter(item => !newTodoIds.includes(item.id));
+
+      // Find todos that are in newTodos but not in oldTodoState
+      // These todos are newly added
+      added = newTodos.filter(item => !oldTodoIds.includes(item.id));
+
+      // Find todos that are in both arrays but have different details
+      // `find()` is used to locate the matching old todo and compare its details
+      updated = newTodos.filter(todo => 
+        oldTodoState.find(oldTodo => 
+          oldTodo.id === todo.id && 
+          (oldTodo.title !== todo.title || oldTodo.description !== todo.description)
+        )
+      );
+
+      // Process the differences
+      // Add each new todo by calling addTodo
+      added.forEach(todo => addTodoToDom(todo));
+
+      // Remove each deleted todo by calling removeTodo
+      deleted.forEach(todo => removeTodoFromDom(todo));
+
+      // Update each changed todo by calling updateTodo
+      updated.forEach(todo => updateTodo(todo));
+
+      // Update oldTodoState to match newTodos after processing
+      oldTodoState = newTodos;
+    }
+
+
+    
+    function addTodo() {
+      const title = document.getElementById("title").value;
+      const description = document.getElementById("description").value;
+      todoState.push({
+        title: title,
+        description: description,
+        id: globalId++,
+      })
+      updateState(todoState);
+    }
+  </script>
+</head>
+
+<body>
+  <input type="text" id="title" placeholder="Todo title"></input> <br /><br />
+  <input type="text" id="description" placeholder="Todo description"></input> <br /><br />
+  <button onclick="addTodo()">Add todo</button>
+  <br /> <br />
+
+  <div id="todos">
+
+  </div>
+</body>
+
+</html>

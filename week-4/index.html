@@ -8,32 +8,45 @@
     }
   </style>
   <script>
-    let globalId = 1;
-    let todoState = [];
-    let oldTodoState = [];
+    let globalId = 1; // Global variable to keep track of unique IDs for todos
+    let todoState = []; // Array to store the current state of todos
+    let oldTodoState = []; // Array to store the previous state of todos
 
+    /**
+     * Adds a todo item to the DOM.
+     * @param {Object} todo - The todo object to be added.
+     */
     function addTodoToDom(todo) {
-      const todoList = document.getElementById('todos');
-      const todoDiv = document.createElement('div');
-      todoDiv.classList.add('todo-item');
-      todoDiv.id = `todo-${todo.id}`;
+      const todoList = document.getElementById('todos'); // Get the container where todos will be listed
+      const todoDiv = document.createElement('div'); // Create a new div element for the todo
+      todoDiv.classList.add('todo-item'); // Add a CSS class for styling
+      todoDiv.id = `todo-${todo.id}`; // Set the ID of the div to match the todo ID
       todoDiv.innerHTML = `
         <strong>${todo.title}</strong>: ${todo.description}
         <button onclick="removeTodoFromDom(${todo.id})">Delete</button>
         <button onclick="editTodoInDom(${todo.id})">Edit</button>
       `;
-      todoList.appendChild(todoDiv);
+      todoList.appendChild(todoDiv); // Add the new div to the list of todos
     }
 
+    /**
+     * Removes a todo item from the DOM.
+     * @param {number} todoId - The ID of the todo to be removed.
+     */
     function removeTodoFromDom(todoId) {
-      const todoDiv = document.getElementById(`todo-${todoId}`);
+      const todoDiv = document.getElementById(`todo-${todoId}`); // Find the div by its ID
       if (todoDiv) {
-        todoDiv.remove();
+        todoDiv.remove(); // Remove the div from the DOM
       }
     }
 
+    /**
+     * Updates a todo item in the DOM.
+     * @param {Object} oldTodo - The old version of the todo.
+     * @param {Object} newTodo - The new version of the todo.
+     */
     function updateTodoInDom(oldTodo, newTodo) {
-      const todoDiv = document.getElementById(`todo-${oldTodo.id}`);
+      const todoDiv = document.getElementById(`todo-${oldTodo.id}`); // Find the div by the old todo's ID
       if (todoDiv) {
         todoDiv.innerHTML = `
           <strong>${newTodo.title}</strong>: ${newTodo.description}
@@ -43,40 +56,83 @@
       }
     }
 
+    /**
+     * Updates the state of todos by comparing with a new set of todos.
+     * @param {Array} newTodos - The new array of todo objects.
+     */
     function updateState(newTodos) {
-      const added = newTodos.filter(todo => !oldTodoState.find(old => old.id === todo.id));
-      const deleted = oldTodoState.filter(todo => !newTodos.find(newTodo => newTodo.id === todo.id));
-      const updated = newTodos.filter(todo => oldTodoState.find(oldTodo => oldTodo.id === todo.id && (oldTodo.title !== todo.title || oldTodo.description !== todo.description)));
+      const added = [];   // Todos that are in newTodos but not in oldTodoState
+      const deleted = []; // Todos that are in oldTodoState but not in newTodos
+      const updated = []; // Todos that are present in both arrays but have different details
 
+      // Convert newTodos array into an array of IDs
+      const newTodoIds = newTodos.map(obj => obj.id);
+
+      // Convert oldTodoState array into an array of IDs
+      const oldTodoIds = oldTodoState.map(obj => obj.id);
+
+      // Find todos that are in oldTodoState but not in newTodos
+      // These todos have been deleted
+      deleted.push(...oldTodoState.filter(item => !newTodoIds.includes(item.id)));
+
+      // Find todos that are in newTodos but not in oldTodoState
+      // These todos are newly added
+      added.push(...newTodos.filter(item => !oldTodoIds.includes(item.id)));
+
+      // Find todos that are in both arrays but have different details
+      // `find()` is used to locate the matching old todo and compare its details
+      updated.push(...newTodos.filter(todo => 
+        oldTodoState.find(oldTodo => 
+          oldTodo.id === todo.id && 
+          (oldTodo.title !== todo.title || oldTodo.description !== todo.description)
+        )
+      ));
+
+      // Process the differences
+      // Add each new todo by calling addTodoToDom
       added.forEach(todo => addTodoToDom(todo));
+
+      // Remove each deleted todo by calling removeTodoFromDom
       deleted.forEach(todo => removeTodoFromDom(todo.id));
+
+      // Update each changed todo by calling updateTodoInDom
       updated.forEach(todo => {
-        const oldTodo = oldTodoState.find(old => old.id === todo.id);
-        updateTodoInDom(oldTodo, todo);
+        const oldTodo = oldTodoState.find(t => t.id === todo.id);
+        if (oldTodo) {
+          updateTodoInDom(oldTodo, todo);
+        }
       });
 
-      oldTodoState = newTodos;
+      // Update oldTodoState to match newTodos after processing
+      oldTodoState = [...newTodos];
     }
 
+    /**
+     * Adds a new todo item based on input values.
+     */
     function addTodo() {
-      const title = document.getElementById("title").value;
-      const description = document.getElementById("description").value;
+      const title = document.getElementById("title").value; // Get the title from the input field
+      const description = document.getElementById("description").value; // Get the description from the input field
       const newTodo = {
         title: title,
         description: description,
-        id: globalId++,
+        id: globalId++, // Assign a unique ID and increment the globalId
       };
-      todoState.push(newTodo);
-      updateState(todoState);
+      todoState.push(newTodo); // Add the new todo to the state
+      updateState(todoState); // Update the DOM based on the new state
     }
 
+    /**
+     * Prepares for editing an existing todo item.
+     * @param {number} todoId - The ID of the todo to be edited.
+     */
     function editTodoInDom(todoId) {
-      const todo = todoState.find(t => t.id === todoId);
+      const todo = todoState.find(t => t.id === todoId); // Find the todo by its ID
       if (todo) {
-        document.getElementById("title").value = todo.title;
+        document.getElementById("title").value = todo.title; // Set the input fields with the existing todo data
         document.getElementById("description").value = todo.description;
-        removeTodoFromDom(todoId);
-        todoState = todoState.filter(t => t.id !== todoId);
+        removeTodoFromDom(todoId); // Remove the todo from the DOM
+        todoState = todoState.filter(t => t.id !== todoId); // Remove the todo from the state
       }
     }
   </script>
@@ -89,7 +145,7 @@
   <br /> <br />
 
   <div id="todos">
-
+    <!-- Todo items will be dynamically added here -->
   </div>
 </body>
 
