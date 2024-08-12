@@ -7,11 +7,11 @@ function TodoList() {
     <div>
       <ul>
         {todos.map((item, index) => (
-          <li key={index}>
+          <li key={item._id}> 
             <strong>{item.title}</strong>: {item.description}
             <button onClick={() => finishTodo(index)}>Finish</button>
             <button onClick={() => deleteTodo(index)}>Delete</button>
-            {item.finished && <span> (Finished)</span>}
+            {item.completed && <span> (Completed)</span>} 
           </li>
         ))}
       </ul>
