@@ -1,2 +1,7 @@
 
 week-3/mern-auth/.env
+
+mkdir ts-learn-app
+cd ts-learn-app
+npm init -y
+npx tsc --init
